@@ -1,0 +1,44 @@
+int PHOTO_SEN = A0;
+int PIR_SEN = 2;
+int TEMP_SEN = A1;
+int RELAY_OUTPUT = 8;
+int US_TRIGGER = 3;
+int US_ECHO = 4;
+
+void setup(){
+  pinMode(PHOTO_SEN, INPUT);
+  pinMode(TEMP_SEN, INPUT);
+  pinMode(PIR_SEN, INPUT);
+  pinMode(US_ECHO, INPUT);
+  pinMode(RELAY_OUTPUT, OUTPUT);
+  pinMode(US_TRIGGER, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop(){
+  int light_val = analogRead(PHOTO_SEN);
+  light_val = map(light_val,0,2000,0,100);
+  int pir_val = digitalRead(PIR_SEN);
+  int temp_val = analogRead(TEMP_SEN);
+  int duration,distance;
+  
+  if(light_val<=30){
+    digitalWrite(US_TRIGGER,HIGH);
+    delay(10);
+    digitalWrite(US_TRIGGER,LOW);
+    
+    duration = pulseIn(US_ECHO,HIGH);
+    distance = duration*0.034/2;
+    if(pir_val==1){
+      digitalWrite(RELAY_OUTPUT,HIGH);
+      delay(10000);
+    }
+    digitalWrite(RELAY_OUTPUT,(distance<50)?HIGH:LOW);
+  }  
+  
+  else if(light_val>30 && temp_val<65) digitalWrite(RELAY_OUTPUT,HIGH);
+  else digitalWrite(RELAY_OUTPUT,LOW);  
+  Serial.println(light_val);
+  Serial.println(temp_val);
+  Serial.println(pir_val);
+}
